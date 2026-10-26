@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Logic Quest: Circuit Arcade</title>
+<style>
+:root{--bg:#0b1020;--panel:#141b33;--panel2:#1b2442;--line:#2b3760;--text:#e8ecff;--mute:#8e9bc7;--on:#35f2a0;--off:#4a5683;--acc:#7c5cff;--gold:#ffc83d;--bad:#ff5d73;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef1fb;--panel:#fff;--panel2:#e7ebfa;--line:#c7cfee;--text:#161c3a;--mute:#5c6794;--on:#0aa66b;--off:#9aa5cc;--gold:#b88400}}
+:root[data-theme="light"]{--bg:#eef1fb;--panel:#fff;--panel2:#e7ebfa;--line:#c7cfee;--text:#161c3a;--mute:#5c6794;--on:#0aa66b;--off:#9aa5cc;--gold:#b88400}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:radial-gradient(1000px 500px at 80% -10%,#2a1f6b55,transparent),var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+.wrap{max-width:1000px;margin:0 auto;padding:14px}
+header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:19px}
+.logo i{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--on));display:grid;place-items:center;font-style:normal;color:#fff;font-size:14px}
+nav{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+nav button,.tabs button{background:transparent;border:1px solid transparent;border-radius:10px;padding:7px 11px;color:var(--mute);font-weight:600}
+nav button.on,.tabs button.on{background:var(--panel);border-color:var(--line);color:var(--text)}
+.ib{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 11px;font-weight:700}
+.hide{display:none!important}
+.hero{background:linear-gradient(135deg,#2a1f6b,#0d3b4f);border-radius:18px;padding:20px;margin-bottom:14px;border:1px solid var(--line);color:#fff}
+.hero h1{margin:0 0 6px;font-size:25px}.hero p{margin:0 0 10px;opacity:.85}
+.hero input{background:#0006;border:1px solid #fff5;border-radius:9px;padding:6px 10px;color:#fff;width:170px}
+.dbs{font-size:12px;opacity:.8;margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.stat,.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.stat small{color:var(--mute);letter-spacing:.8px;font-size:11px}.stat b{display:block;font-size:23px}
+h2.s{margin:18px 0 8px;font-size:17px}h2.s small{color:var(--mute);font-weight:400;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:left;position:relative;transition:.15s;color:var(--text)}
+button.card:hover:not(:disabled){transform:translateY(-3px);border-color:var(--acc);box-shadow:0 8px 24px #7c5cff33}
+.card:disabled{opacity:.45;cursor:not-allowed}.card .n{font-size:11px;color:var(--mute);letter-spacing:1px}.card h3{margin:2px 0 4px;font-size:15px}.card .st{color:var(--gold);letter-spacing:2px}
+.eq{font-family:ui-monospace,Consolas,monospace;color:var(--on)}
+.tag{position:absolute;top:9px;right:11px;font-size:12px;color:var(--mute)}
+.top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.top h2{margin:0;font-size:20px;flex:1}.hearts{font-size:20px;color:var(--bad);letter-spacing:2px}
+.btn{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 14px;font-weight:600}.btn:hover{border-color:var(--acc)}
+.btn.go{background:linear-gradient(135deg,var(--acc),#4f8bff);border:0;color:#fff;box-shadow:0 6px 18px #7c5cff55}
+.steps{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:600;font-size:13px}.pill.on{border-color:var(--acc);box-shadow:0 0 0 2px #7c5cff55}.pill.ok{border-color:var(--on);color:var(--on)}
+.prog{flex:1;min-width:120px;height:8px;background:var(--panel2);border-radius:8px;overflow:hidden}.prog b{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--on));transition:width .5s}
+.goal{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:11px 14px;margin-bottom:10px}
+.goal .eq{display:block;font-size:19px;font-weight:700;margin-top:4px}.goal b{color:var(--gold)}
+.board{background:var(--panel);border:1px solid var(--line);border-radius:16px;touch-action:none;background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:22px 22px}
+svg{width:100%;display:block;user-select:none}
+.pal{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;align-items:center}.pal span{color:var(--mute);font-size:13px}
+.gbtn{border-radius:10px;padding:8px 13px;font-weight:700;border:2px solid;background:var(--panel)}
+.msg{min-height:44px;padding:10px 14px;border-radius:12px;background:var(--panel2);margin:10px 0;white-space:pre-line}
+.msg.ok{background:#35f2a026;border:1px solid var(--on)}.msg.no{background:#ff5d7326;border:1px solid var(--bad)}
+table{border-collapse:collapse;width:100%;text-align:center;font-variant-numeric:tabular-nums}
+th,td{padding:5px 8px;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600;font-size:13px}
+td.ok,.okc{color:var(--on);font-weight:700}td.bad,.badc{color:var(--bad);font-weight:700}
+.opt.good{border-color:var(--on);background:#35f2a026}.opt.wrong{border-color:var(--bad);background:#ff5d7326}
+.tw{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:12px}
+.row{padding:8px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.bd{text-align:center;cursor:pointer}.bd .ic{font-size:38px}.bd.lock{opacity:.4;filter:grayscale(1);cursor:default}.bd.got{border-width:2px}
+form label{display:block;margin:10px 0 3px;color:var(--mute);font-size:13px}
+form input,form textarea,form select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,90px);background:var(--panel);border:1px solid var(--gold);border-radius:12px;padding:10px 16px;transition:.3s;z-index:30;max-width:90vw}#toast.show{transform:translate(-50%,0)}
+.ov{position:fixed;inset:0;background:#000a;z-index:25;display:grid;place-items:center;padding:14px;overflow:auto}
+.md{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;max-width:760px;width:100%;max-height:94vh;overflow:auto}
+.md img{width:100%;border-radius:12px;margin-top:12px;display:block}
+canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40}
+.wire{fill:none;stroke-width:4;stroke-linecap:round}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas><div id="toast"></div><div class="ov hide" id="ov"><div class="md" id="md"></div></div>
+<div class="wrap">
+<header>
+ <div class="logo"><i>LQ</i>Logic Quest</div>
+ <nav><button data-pg="dash" class="on">Dashboard</button><button data-pg="lab">Circuit Lab</button><button data-pg="learn">Learn Logic</button><button data-pg="rw">Real-World</button><button data-pg="cust">Custom Challenge</button><button data-pg="prog">My Progress</button></nav>
+ <div class="ib">✦ <span id="pts">0</span></div><button class="ib" id="snd" aria-label="Sound">🔊</button>
+</header>
+
+<section class="pg" id="dash">
+ <div class="hero"><h1>Wire it. Test it. Master logic.</h1><p>Every level has 3 questions: build the circuit, answer a theory question, solve a truth table. Finish all three to earn the level badge.</p><label>Player name <input id="nm" maxlength="20"></label> <button class="btn go" id="cont">Continue quest →</button><div class="dbs" id="dbs"></div></div>
+ <div class="grid" id="menu" style="margin-bottom:14px">
+  <button class="card" data-m="levels"><div style="font-size:26px">📚</div><h3>Learning Levels</h3><div class="n">8 levels · random questions</div></button>
+  <button class="card" data-m="cust"><div style="font-size:26px">🛠️</div><h3>Custom Challenge</h3><div class="n">Build your own with A, B, C</div></button>
+  <button class="card" data-m="rw"><div style="font-size:26px">🌍</div><h3>Real-World Challenges</h3><div class="n">Security, alarms, smart homes</div></button>
+  <button class="card" data-m="prog"><div style="font-size:26px">📈</div><h3>My Progress</h3><div class="n">Scores and history</div></button>
+  <button class="card" data-m="bd"><div style="font-size:26px">🏅</div><h3>Badges</h3><div class="n">View and download</div></button></div>
+ <div class="stats" id="stats"></div>
+ <h2 class="s">Learning path <small>8 core levels + your custom challenges</small></h2><div class="grid" id="path"></div>
+ <div class="two"><div><h2 class="s">Badges earned</h2><div class="grid" id="dbadges"></div></div><div><h2 class="s">Recent activity</h2><div class="panel" id="recent"></div></div></div>
+</section>
+
+<section class="pg hide" id="lab">
+ <div class="top"><button class="btn" id="back">← Back</button><h2 id="lt"></h2><button class="btn" id="reroll">🔀 New questions</button><div class="hearts" id="hp"></div></div>
+ <div class="steps" id="steps"></div>
+ <div id="q1">
+  <div class="goal" id="goal"></div>
+  <div class="board"><svg id="svg" viewBox="0 0 760 400" aria-label="Circuit board"></svg></div>
+  <div class="pal" id="pal"></div>
+  <div class="msg" id="msg"></div>
+  <div class="top"><button class="btn go" id="test">▶ Test circuit</button><button class="btn" id="hint">💡 Hint</button><button class="btn" id="reset">↺ Reset</button><button class="btn go hide" id="next"></button></div>
+  <h2 class="s">Truth-table testing <small>expected vs your circuit, live</small></h2>
+  <div class="tw"><table id="tt"></table></div>
+ </div>
+ <div class="panel hide" id="qx"></div>
+</section>
+
+<section class="pg hide" id="rw">
+ <div class="hero"><h1>🌍 Real-World Challenges</h1><p>See how Digital Logic Design runs real systems. For each scenario: read the problem, pick the Boolean expression, build the circuit, check the truth table and earn points. Hints are available if you get stuck.</p></div>
+ <div class="grid" id="rwgrid"></div>
+</section>
+
+<section class="pg hide" id="learn">
+ <div class="hero"><h1>Learn Logic</h1><p>Digital circuits use two states: LOW (0) and HIGH (1). Gates combine them to make decisions.</p></div>
+ <div class="grid" id="gates"></div>
+ <h2 class="s">Boolean notation</h2>
+ <div class="panel eq">A · B = AND &nbsp;|&nbsp; A + B = OR &nbsp;|&nbsp; A′ = NOT &nbsp;|&nbsp; A ⊕ B = XOR &nbsp;|&nbsp; (A · B)′ = NAND &nbsp;|&nbsp; (A + B)′ = NOR &nbsp;|&nbsp; (A ⊕ B)′ = XNOR</div>
+</section>
+
+<section class="pg hide" id="prog">
+ <div class="tabs"><button data-pv="ov" class="on">Overview</button><button data-pv="bd">🏅 Badges</button></div>
+ <div id="pv-ov"><div class="stats" id="pstats"></div><h2 class="s">Real-World challenge results</h2><div class="tw"><table id="rwt"></table></div><h2 class="s">Challenge history</h2><div class="tw"><table id="hist"></table></div></div>
+ <div id="pv-bd" class="hide"><h2 class="s" style="margin-top:0">Badges by level <small id="bcount"></small></h2><div class="grid" id="pbadges"></div></div>
+</section>
+
+<section class="pg hide" id="cust">
+ <h2 class="s" style="margin-top:0">Custom Challenge</h2>
+ <div class="two"><div class="panel"><h3 style="margin-top:0">Create your own challenge</h3>
+ <form id="cf"><label>Title</label><input id="ct" required maxlength="40" placeholder="e.g. Smart room light">
+ <label>Instructions</label><textarea id="cd" required maxlength="160" rows="2"></textarea>
+ <label>Number of inputs</label><select id="cn"><option value="2">2 inputs (A, B)</option><option value="3">3 inputs (A, B, C)</option></select>
+ <label>Target output Y in truth-table order (4 bits for 2 inputs, 8 bits for 3 inputs)</label><input id="cb" required maxlength="8" placeholder="0110">
+ <div class="tw" style="margin-top:8px"><table id="cpv"></table></div>
+ <label>Par gates (for 3 stars)</label><input id="cp" type="number" min="1" max="12" value="3">
+ <p><button class="btn go">＋ Save challenge</button> <span id="cfb"></span></p></form></div>
+ <div class="panel"><h3 style="margin-top:0">My challenges</h3><div id="clist"></div></div></div>
+</section>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/lq-backend.js"></script>
+<script>
+(()=>{"use strict";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const F={AND:(a,b)=>a&&b,OR:(a,b)=>a||b,NOT:a=>!a,NAND:(a,b)=>!(a&&b),NOR:(a,b)=>!(a||b),XOR:(a,b)=>a!==b,XNOR:(a,b)=>a===b};
+const COL={AND:"#ff8a3d",OR:"#3dc9ff",NOT:"#ff5d9e",NAND:"#b07cff",NOR:"#ffd23d",XOR:"#35f2a0",XNOR:"#ff7ae0"};
+const INFO={AND:["Output is 1 only when both inputs are 1.","A · B"],OR:["Output is 1 when at least one input is 1.","A + B"],NOT:["Output is the opposite of the input.","A′"],NAND:["Output is 0 only when both inputs are 1. A universal gate.","(A · B)′"],NOR:["Output is 1 only when both inputs are 0. Also universal.","(A + B)′"],XOR:["Output is 1 when the inputs are different.","A ⊕ B"],XNOR:["Output is 1 when the inputs match.","(A ⊕ B)′"]};
+const ALLG=Object.keys(F);
+const mk=(n,d,eq,g,par,f,h,x={})=>({t:"circ",n,d,eq,i:["A","B"],o:["Y"],g,par,f:v=>[!!f(v[0],v[1],v[2])],h,...x});
+const L=[
+mk("AND gate","Output 1 only when A and B are both 1.","Y = A · B",["AND"],1,(a,b)=>a&&b,"Wire A and B into one AND gate, then into Y."),
+mk("OR gate","Output 1 when at least one input is 1.","Y = A + B",["OR"],1,(a,b)=>a||b,"One OR gate is enough."),
+mk("The inverter","Y must always be the opposite of A.","Y = A′",["NOT"],1,a=>!a,"NOT flips 0 to 1 and 1 to 0.",{i:["A"]}),
+mk("Build a NAND","Y is 0 only when both inputs are 1. You only have AND and NOT.","Y = (A · B)′",["AND","NOT"],2,(a,b)=>!(a&&b),"NAND = AND followed by NOT."),
+mk("Build a NOR","Y is 1 only when both inputs are 0. You only have OR and NOT.","Y = (A + B)′",["OR","NOT"],2,(a,b)=>!(a||b),"NOR = OR followed by NOT."),
+mk("Different? XOR","Y is 1 when A and B differ. Use AND, OR, NOT.","Y = A ⊕ B = (A + B) · (A · B)′",["AND","OR","NOT"],4,(a,b)=>a!==b,"One OR, one AND, one NOT, then a final AND."),
+mk("Match? XNOR","Y is 1 when A and B are equal.","Y = (A ⊕ B)′ = A · B + (A + B)′",["AND","OR","NOR"],3,(a,b)=>a===b,"AND catches 11, NOR catches 00, OR combines them."),
+mk("Universal NAND","Make an OR gate using only NAND gates.","Y = A + B = ((A · A)′ · (B · B)′)′",["NAND"],3,(a,b)=>a||b,"NAND(A,A) is NOT A. Then NAND the two inverted signals.")];
+L.forEach((l,i)=>l.k="L"+(i+1));
+const mkc=c=>{const ni=c.ni||2;return mk(c.n,c.d,"Y = table "+c.b,ALLG,c.par,(a,b,d)=>c.b[ni==3?(a?4:0)+(b?2:0)+(d?1:0):(a?2:0)+(b?1:0)]=="1","Try a sum of products: AND the rows that should give 1, then OR them.",{custom:1,k:c.id,i:["A","B","C"].slice(0,ni)})};
+const C=(id,...a)=>({...mk(...a),id}),M=(id,q,o,a,w)=>({id,t:"mcq",q,o,a:o[a],w}),T=(id,e,f,n=2)=>({id,t:"tt",e,f,n}),R=(id,g,a,b)=>({id,t:"pred",g,a,b});
+const CNT=[3,3,4,4,4,5,5,5];
+const ABC=["A","B","C"];
+const BK=[
+[C("1a","AND gate","Output 1 only when A and B are both 1.","Y = A · B",["AND"],1,(a,b)=>a&&b,"Wire A and B into one AND gate, then into Y."),
+ C("1b","Three-way AND","Y is 1 only when A, B and C are all 1. Use two AND gates.","Y = A · B · C",["AND"],2,(a,b,c)=>a&&b&&c,"AND the first two inputs, then AND that result with C.",{i:ABC}),
+ M("1c","An AND gate outputs 1 only when…",["any input is 1","all inputs are 1","all inputs are 0","the inputs differ"],1,"AND means every input must be 1."),
+ M("1d","Which symbol means AND in Boolean algebra?",["·","+","′","⊕"],0,"The dot (·) is AND. The plus sign is OR."),
+ M("1e","What is A · 0 for any value of A?",["A","0","1","A′"],1,"Anything AND 0 is always 0."),
+ M("1f","What is A · 1 ?",["1","0","A","A′"],2,"AND with 1 leaves A unchanged."),
+ T("1g","Y = A · B′",(a,b)=>a&&!b),R("1h","AND",1,1),R("1i","AND",1,0)],
+[C("2a","OR gate","Output 1 when at least one input is 1.","Y = A + B",["OR"],1,(a,b)=>a||b,"One OR gate is enough."),
+ C("2b","Three-way OR","Y is 1 when at least one of A, B, C is 1. Use two OR gates.","Y = A + B + C",["OR"],2,(a,b,c)=>a||b||c,"OR two inputs, then OR the result with the third.",{i:ABC}),
+ M("2c","Which symbol means OR in Boolean algebra?",["·","+","′","⊕"],1,"A + B is OR."),
+ M("2d","What is A + 1 ?",["A","0","1","A′"],2,"OR with 1 is always 1."),
+ M("2e","What is A + 0 ?",["0","1","A","A′"],2,"OR with 0 leaves A unchanged."),
+ T("2f","Y = A + B′",(a,b)=>a||!b),R("2g","OR",0,0),R("2h","OR",0,1)],
+[C("3a","The inverter","Y must always be the opposite of A.","Y = A′",["NOT"],1,a=>!a,"NOT flips 0 to 1 and 1 to 0.",{i:["A"]}),
+ C("3b","Inhibit","Y is 1 only when B is 1 and A is 0.","Y = A′ · B",["NOT","AND"],2,(a,b)=>!a&&b,"Invert A, then AND it with B."),
+ M("3c","What is (A′)′ ?",["A′","0","A","1"],2,"Two inversions cancel out."),
+ M("3d","How many inputs does a NOT gate have?",["1","2","3","4"],0,"A NOT gate has one input and one output."),
+ M("3e","What is A · A′ ?",["A","1","0","A′"],2,"A signal and its opposite are never both 1."),
+ M("3f","What is A + A′ ?",["0","1","A","A′"],1,"One of A or A′ is always 1."),
+ T("3g","Y = A′ + B",(a,b)=>!a||b),T("3h","Y = A′ · B",(a,b)=>!a&&b),R("3i","NOT",1,0),R("3j","NOT",0,0)],
+[C("4a","Build a NAND","Y is 0 only when both inputs are 1. You only have AND and NOT.","Y = (A · B)′",["AND","NOT"],2,(a,b)=>!(a&&b),"NAND = AND followed by NOT."),
+ C("4b","De Morgan NAND","Build Y = A′ + B′ using NOT and OR. It behaves exactly like NAND.","Y = A′ + B′",["NOT","OR"],3,(a,b)=>!a||!b,"Invert A and B separately, then OR them."),
+ M("4c","Why is NAND called a universal gate?",["It is the fastest gate","Any logic function can be built from NAND gates alone","It has three inputs","It never outputs 0"],1,"NOT, AND and OR can all be made from NAND."),
+ M("4d","(A · B)′ is equal to…",["A′ · B′","A′ + B′","A + B","A · B"],1,"De Morgan: invert each input and swap AND with OR."),
+ M("4e","Simplify (A · A)′",["A","A′","0","1"],1,"A · A = A, so the result is A′."),
+ T("4f","Y = (A · B)′",(a,b)=>!(a&&b)),R("4g","NAND",1,1),R("4h","NAND",0,1)],
+[C("5a","Build a NOR","Y is 1 only when both inputs are 0. You only have OR and NOT.","Y = (A + B)′",["OR","NOT"],2,(a,b)=>!(a||b),"NOR = OR followed by NOT."),
+ C("5b","De Morgan NOR","Build Y = A′ · B′ using NOT and AND. It behaves exactly like NOR.","Y = A′ · B′",["NOT","AND"],3,(a,b)=>!a&&!b,"Invert A and B, then AND them."),
+ M("5c","A NOR gate outputs 1 only when…",["both inputs are 1","both inputs are 0","the inputs differ","either input is 1"],1,"NOR = OR then NOT."),
+ M("5d","(A + B)′ is equal to…",["A′ + B′","A′ · B′","A · B","A + B"],1,"De Morgan: invert each input and swap OR with AND."),
+ M("5e","A NOR gate with both inputs tied together acts as a…",["AND gate","OR gate","NOT gate","XOR gate"],2,"NOR(A,A) = (A + A)′ = A′."),
+ T("5f","Y = (A + B)′",(a,b)=>!(a||b)),R("5g","NOR",0,0),R("5h","NOR",1,0)],
+[C("6a","Different? XOR","Y is 1 when A and B differ. Use AND, OR, NOT.","Y = A ⊕ B = (A + B) · (A · B)′",["AND","OR","NOT"],4,(a,b)=>a!==b,"One OR, one AND, one NOT, then a final AND."),
+ C("6b","XOR from NAND","Build XOR using only NAND gates (4 gates).","Y = A ⊕ B",["NAND"],4,(a,b)=>a!==b,"Let X = NAND(A,B). Then NAND(A,X) and NAND(B,X), and NAND those two together."),
+ M("6c","An XOR gate outputs 1 when the inputs…",["are equal","are both 1","are different","are both 0"],2,"XOR detects a difference: 01 and 10."),
+ M("6d","What is A ⊕ A ?",["A","1","A′","0"],3,"A value always equals itself, so XOR gives 0."),
+ M("6e","What is A ⊕ 0 ?",["0","A","1","A′"],1,"XOR with 0 leaves A unchanged."),
+ M("6f","What is A ⊕ 1 ?",["A","0","A′","1"],2,"XOR with 1 inverts A."),
+ T("6g","Y = A ⊕ B",(a,b)=>a!==b),T("6h","Y = A ⊕ B′",(a,b)=>a!==!b),R("6i","XOR",1,0),R("6j","XOR",1,1)],
+[C("7a","Match? XNOR","Y is 1 when A and B are equal.","Y = (A ⊕ B)′ = A · B + (A + B)′",["AND","OR","NOR"],3,(a,b)=>a===b,"AND catches 11, NOR catches 00, OR combines them."),
+ C("7b","XNOR from XOR","Use an XOR gate and a NOT gate to make XNOR.","Y = (A ⊕ B)′",["XOR","NOT"],2,(a,b)=>a===b,"XNOR is XOR followed by NOT."),
+ M("7c","XNOR is equivalent to…",["A ⊕ B","(A ⊕ B)′","A · B","A + B"],1,"XNOR is XOR followed by NOT."),
+ M("7d","An XNOR gate outputs 1 when the inputs…",["differ","match","are 1 only","are 0 only"],1,"XNOR is 1 for 00 and 11."),
+ M("7e","What is A XNOR A ?",["0","A","1","A′"],2,"A value always matches itself."),
+ T("7f","Y = A ⊕ B′",(a,b)=>a!==!b),R("7g","XNOR",1,1),R("7h","XNOR",1,0)],
+[C("8a","Universal NAND","Make an OR gate using only NAND gates.","Y = A + B = ((A · A)′ · (B · B)′)′",["NAND"],3,(a,b)=>a||b,"NAND(A,A) is NOT A. Then NAND the two inverted signals."),
+ C("8b","NOT from NAND","Make an inverter using one NAND gate.","Y = A′ = (A · A)′",["NAND"],1,a=>!a,"Connect A to both inputs of one NAND gate.",{i:["A"]}),
+ C("8c","AND from NAND","Make an AND gate using only NAND gates.","Y = A · B = ((A · B)′)′",["NAND"],2,(a,b)=>a&&b,"NAND the inputs, then NAND the result with itself."),
+ M("8d","Which single gate type can build every other gate?",["AND","OR","NAND","XOR"],2,"NAND (and NOR) are universal gates."),
+ M("8e","NAND(A, A) equals…",["A","A′","0","1"],1,"A · A = A, then inverted gives A′."),
+ M("8f","Is NOR also a universal gate?",["Yes","No"],0,"Yes: NOR can build NOT, OR and AND."),
+ T("8g","Y = ((A · B)′ · (A · B)′)′",(a,b)=>a&&b),R("8h","NAND",1,0)]];
+const qOf=(i,id)=>BK[i].find(q=>q.id==id);
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const rowsN=n=>{const r=[];for(let m=0;m<1<<n;m++)r.push(Array.from({length:n},(_,k)=>m>>(n-1-k)&1));return r};
+// Real-World challenges: add a new object here and it appears automatically.
+const RW=[
+{k:"R1",ic:"🚪",t:"Door Security System",d:"Easy",pts:100,story:"An office door must unlock only when every access requirement is satisfied.",goal:"Unlock the door only when the card is valid, the PIN is correct and the door is closed.",in:[["A","Valid access card"],["B","Correct PIN entered"],["C","Door sensor says the door is closed"]],out:"Y = 1 unlocks the door",f:(a,b,c)=>a&&b&&c,x:"Y = A · B · C",o:["Y = A + B + C","Y = A · B + C","Y = (A · B · C)′"],g:["AND","OR","NOT"],par:2,hs:["Every condition must be true at the same time. Which gate means 'all'?","AND two inputs first, then AND the result with the third input.","Use two AND gates: (A · B) · C."],ex:"Security needs every condition together, so the inputs are combined with AND. If any one is 0, the door stays locked."},
+{k:"R2",ic:"🚨",t:"Burglar Alarm System",d:"Medium",pts:150,story:"A home alarm should ring only when it is armed and an intrusion is detected.",goal:"Sound the siren only when the system is armed AND either the door sensor or the motion sensor triggers.",in:[["A","System is armed"],["B","Door/window sensor triggered"],["C","Motion detected"]],out:"Y = 1 sounds the siren",f:(a,b,c)=>a&&(b||c),x:"Y = A · (B + C)",o:["Y = A · B · C","Y = A + B + C","Y = (A + B) · C"],g:["AND","OR","NOT"],par:2,hs:["Armed is mandatory. The two sensors can replace each other.","First combine the sensors with a gate that means 'either'.","OR the two sensors, then AND the result with A."],ex:"Either sensor is enough (OR), but only while the system is armed (AND). A disarmed system never rings."},
+{k:"R3",ic:"💡",t:"Automatic Streetlight",d:"Easy",pts:100,story:"A city streetlight should switch itself on at night but allow maintenance crews to force it off.",goal:"Turn the light on when it is dark, unless the maintenance switch is on.",in:[["A","It is dark (light sensor)"],["B","Maintenance switch forces light OFF"]],out:"Y = 1 turns the light on",f:(a,b)=>a&&!b,x:"Y = A · B′",o:["Y = A + B′","Y = A′ · B","Y = A · B"],g:["AND","OR","NOT"],par:2,hs:["The light needs darkness AND the maintenance switch must be OFF.","B must be inverted so that 'switch off' becomes 1.","NOT gate on B, then AND with A."],ex:"The light needs darkness (A) and no maintenance override (B′), so A · B′."},
+{k:"R4",ic:"🔥",t:"Fire Alarm System",d:"Medium",pts:150,story:"A building alarm confirms smoke with a heat reading to avoid false alarms, but a manual call point always works.",goal:"Activate the alarm when smoke AND heat are both detected, or when someone presses the manual call point.",in:[["A","Smoke detected"],["B","Heat above threshold"],["C","Manual call point pressed"]],out:"Y = 1 activates the alarm",f:(a,b,c)=>(a&&b)||c,x:"Y = A · B + C",o:["Y = A + B + C","Y = A · B · C","Y = (A + B) · C"],g:["AND","OR","NOT"],par:2,hs:["Two sensors must agree, but the manual button works on its own.","AND the sensors together first.","Then OR that result with C."],ex:"Smoke AND heat confirm a real fire (A · B). The manual button (C) is an OR path that always triggers the alarm."},
+{k:"R5",ic:"🏠",t:"Smart Home Lighting",d:"Hard",pts:200,story:"A staircase light has a switch at the bottom and a switch at the top (either one toggles the light), and a daylight sensor keeps it off in the day.",goal:"Light on when exactly one of the two switches is ON, and only when there is no daylight.",in:[["A","Bottom switch ON"],["B","Top switch ON"],["C","Daylight detected"]],out:"Y = 1 turns the light on",f:(a,b,c)=>(a!==b)&&!c,x:"Y = (A ⊕ B) · C′",o:["Y = A ⊕ B ⊕ C","Y = (A + B) · C′","Y = (A · B) + C′"],g:["XOR","AND","NOT","OR"],par:3,hs:["Two-way switches work like XOR: light changes when exactly one switch is ON.","Daylight must switch the light off, so use C inverted.","XOR(A,B), NOT(C), then AND them."],ex:"Two-way staircase switching is an XOR (A ⊕ B). Daylight must block it, so AND with C′."},
+{k:"R6",ic:"🚰",t:"Water Tank Controller",d:"Medium",pts:150,story:"A pump fills a rooftop tank. It must never run dry, never overfill and needs mains power.",goal:"Run the pump only when the reservoir has water, the tank is not full and mains power is OK.",in:[["A","Reservoir has water"],["B","Tank is full (high-level sensor)"],["C","Mains power OK"]],out:"Y = 1 runs the pump",f:(a,b,c)=>a&&!b&&c,x:"Y = A · B′ · C",o:["Y = A · B · C","Y = A + B′ + C","Y = (A · B′) + C"],g:["AND","OR","NOT"],par:3,hs:["Three safety conditions must all hold. One of them is 'NOT full'.","Invert B first, because 'not full' is B = 0.","NOT on B, then AND with A, then AND with C."],ex:"All safety conditions must hold together (AND). 'Tank not full' is B′, so the pump stops when B = 1."},
+{k:"R7",ic:"🅿️",t:"Parking Gate System",d:"Medium",pts:150,story:"A parking barrier should lift for a car that is waiting at the gate and has valid access.",goal:"Open the gate when a vehicle is detected AND the driver has either a valid pass or a paid ticket.",in:[["A","Valid season pass"],["B","Paid ticket"],["C","Vehicle detected at gate"]],out:"Y = 1 opens the barrier",f:(a,b,c)=>c&&(a||b),x:"Y = C · (A + B)",o:["Y = C + A + B","Y = A · B · C","Y = C · A · B′"],g:["AND","OR","NOT"],par:2,hs:["Pass and ticket are two different ways to get access.","Combine the two access methods with 'either'.","OR(A,B), then AND with C."],ex:"Access can come from a pass OR a paid ticket (A + B), but a vehicle must be present (AND with C)."},
+{k:"R8",ic:"🆘",t:"Emergency Alert System",d:"Hard",pts:200,story:"A plant sends an emergency alert only when at least two of three danger signals agree, which reduces false alarms.",goal:"Send the alert when any two (or all three) of the signals are active.",in:[["A","Fire alarm active"],["B","Gas leak detected"],["C","Panic button pressed"]],out:"Y = 1 sends the emergency alert",f:(a,b,c)=>(a&&b)||(b&&c)||(a&&c),x:"Y = A · B + B · C + A · C",o:["Y = A + B + C","Y = A · B · C","Y = A · B + C"],g:["AND","OR"],par:5,hs:["'At least two of three' means one of the three pairs must be both 1.","The pairs are A·B, B·C and A·C.","Three AND gates (one per pair), then OR them together using two OR gates."],ex:"Any pair being active is enough: A·B, B·C or A·C. OR the three pairs to get the majority function."}];
+const rwBrief=r=>({id:r.k+"e",t:"mcq",lbl:"Expression",pre:`<div class="goal"><b>${r.ic} ${r.t}</b> · ${r.d}<br>${r.story}<br><b>Objective:</b> ${r.goal}</div><div class="tw"><table><tr><th>Input</th><th>Meaning (1 = true)</th></tr>${r.in.map(x=>`<tr><td>${x[0]}</td><td style="text-align:left">${x[1]}</td></tr>`).join("")}<tr><td>Y</td><td style="text-align:left">${r.out}</td></tr></table></div>`,q:"Which Boolean expression describes the required behaviour?",o:[r.x,...r.o],a:r.x,w:r.ex,fb:"Re-read the objective. Which inputs must be 1 together (AND) and which can replace each other (OR)? Check each input's meaning."});
+const rwCirc=r=>({id:r.k+"c",t:"circ",lbl:"Build circuit",hide:1,n:r.t,d:"Build the circuit. "+r.goal,eq:r.x,leg:"<br>"+r.in.map(x=>x[0]+" = "+x[1]).join(" · "),i:r.in.map(x=>x[0]),o:["Y"],g:r.g,par:r.par,f:v=>[!!r.f(v[0],v[1],v[2])],hs:r.hs,ex:r.ex});
+const BD=[["⚡","AND Ace"],["🔀","OR Operator"],["🔄","Inverter Initiate"],["🧭","NAND Navigator"],["🥷","NOR Ninja"],["🔍","XOR Explorer"],["🪞","XNOR Expert"],["🏛️","Universal Architect"]];
+const BC=["#ff8a3d","#3dc9ff","#ff5d9e","#b07cff","#ffd23d","#35f2a0","#ff7ae0","#ffc83d"];
+const bdef=i=>({id:"L"+(i+1),lv:i+1,icon:BD[i][0],title:BD[i][1],c:BC[i],desc:`Passed the circuit, theory and truth-table questions of “${L[i].n}”.`});
+const RANKS=[[0,"Rookie"],[150,"Wire Apprentice"],[400,"Gate Keeper"],[800,"Circuit Wizard"],[1300,"Logic Legend"]];
+// ---------- storage layer: database (per-player) with browser fallback ----------
+const K="lqArcade3",S={pts:0,stars:{},done:{},prog:{},att:{},seen:{},ok:{},rw:{},snd:true,name:"Player",hist:[],custom:[],badges:{}};
+try{Object.assign(S,JSON.parse(localStorage.getItem(K)||"{}"))}catch(e){}
+let ROOT=null,DLS=null;
+const W=(sub,id,data)=>{if(ROOT)ROOT.collection(sub).doc(id).set(data).catch(()=>{})};
+function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}if(ROOT)ROOT.set({name:S.name,pts:S.pts,stars:S.stars,done:S.done,prog:S.prog,att:S.att,seen:S.seen,ok:S.ok,rw:S.rw,snd:S.snd}).catch(()=>{})}
+async function dbInit(){try{if(typeof claude=="undefined")return;const u=await claude.use("user"),id=u&&await u.id(),d=await claude.use("db");DLS=await claude.use("downloads");
+ if(d&&id){ROOT=d.doc("data/users/"+id+"/profile");const p=await ROOT.get();
+  if(p.exists){Object.assign(S,p.data());const[b,c,h]=await Promise.all(["badges","custom","history"].map(n=>ROOT.collection(n).get()));
+   S.badges={};b.docs.forEach(x=>S.badges[x.id]=x.data());S.custom=c.docs.map(x=>({...x.data(),id:x.id})).sort((x,y)=>x.t-y.t);S.hist=h.docs.map(x=>x.data()).sort((x,y)=>y.t-x.t).slice(0,60)}
+  else{save();Object.values(S.badges).forEach(x=>W("badges",x.id,x));S.custom.forEach(x=>W("custom",x.id,x));S.hist.forEach(x=>W("history","h"+x.t,x))}}}catch(e){ROOT=null}
+ dbs();go(curPg())}
+const dbs=()=>$("#dbs").textContent=ROOT?"☁ Progress, scores, badges and custom challenges are saved to your Logic Quest database.":"💾 Server unavailable right now. Saving in this browser only.";
+const AL=()=>[...L,...S.custom.map(mkc)];
+const rank=()=>RANKS.filter(r=>S.pts>=r[0]).pop()[1];
+const cleared=()=>L.filter(l=>S.done[l.k]).length;
+// ---------- sound ----------
+const AC=window.AudioContext||window.webkitAudioContext;let A;
+function tone(f,d,ty,t0=0){if(!S.snd||!AC)return;try{A=A||new AC();const o=A.createOscillator(),g=A.createGain(),t=A.currentTime+t0;o.type=ty;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.07,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(A.destination);o.start(t);o.stop(t+d)}catch(e){}}
+const SF={nav:["square",.05,500,650],click:["square",.04,600],add:["triangle",.07,440,660,880],pick:["sine",.06,700],wire:["sine",.07,700,1000,1400],cut:["sawtooth",.07,400,250,150],on:["square",.06,520,780],off:["square",.06,780,520],del:["sawtooth",.09,300,180],err:["sawtooth",.18,200,150],lose:["sawtooth",.15,330,220,140],over:["sawtooth",.22,330,262,196,130],hint:["triangle",.09,880,1100,1320],win:["triangle",.14,523,659,784,1047,1319],ok:["triangle",.1,659,880],badge:["sine",.12,1047,1319,1568,2093],unlock:["triangle",.1,784,988,1175]};
+const sfx=n=>{const[t,d,...f]=SF[n];f.forEach((x,i)=>tone(x,d*1.6,t,i*d*.85))};
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("show"),3000)};
+// ---------- pages ----------
+let lv=-1,st=0,nodes=[],sel,hp,hinted,uid,drag,env,pv="ov",hn=0,ses=null,built="",CQ=null;
+const curPg=()=>($$(".pg").find(s=>!s.classList.contains("hide"))||{id:"dash"}).id;
+function go(p){$$(".pg").forEach(s=>s.classList.toggle("hide",s.id!=p));$$("nav button").forEach(b=>b.classList.toggle("on",b.dataset.pg==p));
+ if(p=="lab"&&!ses){openLevel(cur());return}
+ ({dash:rDash,learn:rLearn,prog:rProg,cust:rCust,rw:rRW}[p]||(()=>{}))();$("#pts").textContent=S.pts}
+const cur=()=>{const i=L.findIndex(l=>!S.done[l.k]);return i<0?0:i};
+const unl=i=>i==0||i>=8||S.done[L[i-1].k];
+const stars=n=>"★".repeat(n)+`<span style="opacity:.25">${"★".repeat(3-n)}</span>`;
+const stat=(l,v)=>`<div class="stat"><small>${l}</small><b>${v}</b></div>`;
+const tag=(l,i)=>{if(i>=8)return S.done[l.k]?"✔":"";const a=S.att[l.k],all=a&&a.done.every(Boolean);return S.done[l.k]&&(!a||all)?"✔ cleared":(a?a.done.filter(Boolean).length+"/"+a.done.length:"0/"+CNT[i])};
+function rDash(){$("#nm").value=S.name;dbs();const nx=RANKS.find(r=>r[0]>S.pts);
+ $("#stats").innerHTML=stat("POINTS",S.pts)+stat("LEVELS",cleared()+" / 8")+stat("REAL-WORLD",RW.filter(r=>S.done[r.k]).length+" / "+RW.length)+stat("BADGES",Object.keys(S.badges).length+" / 8")+stat("RANK",rank())+(nx?stat("NEXT RANK AT",nx[0]):"");
+ $("#path").innerHTML=AL().map((l,i)=>{const u=unl(i);return `<button class="card" data-l="${i}" ${u?"":"disabled"}><div class="n">${l.custom?"CUSTOM":"LEVEL "+(i+1)}</div><span class="tag">${u?tag(l,i):"🔒"}</span><h3>${l.n}</h3><div class="eq" style="font-size:12px">${l.eq}</div><div class="st">${stars(S.stars[l.k]||0)}</div></button>`}).join("");
+ $("#dbadges").innerHTML=Object.values(S.badges).sort((a,b)=>a.lv-b.lv).map(b=>`<div class="card bd got" style="border-color:${b.c}"><div class="ic">${b.icon}</div><h3>${b.title}</h3><div class="n">LEVEL ${b.lv}</div></div>`).join("")||'<div class="panel">Finish every question of a level to earn its badge.</div>';
+ $("#recent").innerHTML=S.hist.slice(0,5).map(h=>`<div class="row"><span>${h.ok?"✅":"❌"} ${h.c}</span><span>${h.ok?"+"+h.p:"lost a heart"}</span></div>`).join("")||"Your attempts will appear here."}
+function rRW(){$("#rwgrid").innerHTML=RW.map((r,j)=>{const s=S.rw[r.k];return `<button class="card" data-r="${j}"><div class="n">${r.d.toUpperCase()} · ${r.pts} PTS</div><span class="tag">${S.done[r.k]?"✔":""}</span><div style="font-size:30px">${r.ic}</div><h3>${r.t}</h3><div class="st">${stars(s?s.s:0)}</div><div style="font-size:12px;color:var(--mute)">${s?"Best score "+s.p:"Not attempted"}</div></button>`}).join("")}
+function rLearn(){$("#gates").innerHTML=ALLG.map(g=>{const two=g!="NOT",rows=two?[[0,0],[0,1],[1,0],[1,1]]:[[0],[1]];
+ return `<div class="card"><h3 style="color:${COL[g]}">${g}</h3><div class="eq">Y = ${INFO[g][1]}</div><p style="margin:4px 0;font-size:13px;color:var(--mute)">${INFO[g][0]}</p><table><tr><th>A</th>${two?"<th>B</th>":""}<th>Y</th></tr>${rows.map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join("")}<td class="okc">${+F[g](!!r[0],!!r[1])}</td></tr>`).join("")}</table></div>`}).join("")}
+function rProg(){$$(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.pv==pv));$("#pv-ov").classList.toggle("hide",pv!="ov");$("#pv-bd").classList.toggle("hide",pv!="bd");
+ const h=S.hist;$("#pstats").innerHTML=stat("POINTS",S.pts)+stat("LEVELS CLEARED",cleared()+" / 8")+stat("REAL-WORLD",RW.filter(r=>S.done[r.k]).length+" / "+RW.length)+stat("ATTEMPTS",h.length)+stat("PASSED",h.filter(x=>x.ok).length);
+ $("#rwt").innerHTML="<tr><th>Scenario</th><th>Stars</th><th>Score</th><th>Date</th></tr>"+RW.map(r=>{const s=S.rw[r.k];return `<tr><td>${r.ic} ${r.t}</td><td class="st" style="color:var(--gold)">${s?stars(s.s):"–"}</td><td>${s?s.p+" / "+r.pts:"–"}</td><td>${s?s.d:"–"}</td></tr>`}).join("");
+ $("#hist").innerHTML="<tr><th>Challenge</th><th>Result</th><th>Points</th></tr>"+(h.slice(0,15).map(x=>`<tr><td>${x.c}</td><td class="${x.ok?"okc":"badc"}">${x.ok?"Passed":"Failed"}</td><td>${x.p}</td></tr>`).join("")||'<tr><td colspan="3">No attempts yet</td></tr>');
+ $("#bcount").textContent=Object.keys(S.badges).length+" of 8 earned";
+ $("#pbadges").innerHTML=L.map((l,i)=>{const b=S.badges["L"+(i+1)],d=bdef(i);return b?`<div class="card bd got" data-b="${b.id}" style="border-color:${b.c}"><div class="n">LEVEL ${b.lv}</div><div class="ic">${b.icon}</div><h3>${b.title}</h3><div class="n">${b.date}</div><div style="font-size:12px;color:var(--mute)">Tap to view or download</div></div>`:`<div class="card bd lock"><div class="n">LEVEL ${d.lv}</div><div class="ic">🔒</div><h3>${d.title}</h3><div style="font-size:12px;color:var(--mute)">Complete all questions</div></div>`}).join("")}
+function rCust(){$("#clist").innerHTML=S.custom.map((c,i)=>`<div class="row"><span><b>${c.n}</b><br><span class="eq">${c.b}</span> · ${c.ni||2} inputs · par ${c.par}</span><span><button class="btn go" data-cp="${i}">Attempt</button> <button class="btn" data-cd="${c.id}" aria-label="Delete">🗑</button></span></div>`).join("")||"No custom challenges yet. Create one!";cpv()}
+function cpv(){const n=+$("#cn").value,b=$("#cb").value,rows=rowsN(n);$("#cpv").innerHTML=`<tr>${ABC.slice(0,n).map(x=>`<th>${x}</th>`).join("")}<th>Y</th></tr>`+rows.map((r,i)=>`<tr>${r.map(x=>`<td>${x}</td>`).join("")}<td class="${b[i]?"okc":""}">${b[i]||"·"}</td></tr>`).join("")}
+// ---------- sessions: levels (random question sets), custom, real-world ----------
+const lbl=q=>q.lbl||({circ:"Circuit",mcq:"Theory",tt:"Truth table",pred:"Predict output"}[q.t]);
+function newAtt(i){const pr=q=>(S.seen[q.id]||0)+Math.random()*1e3;const pool=[...BK[i]].sort((a,b)=>pr(a)-pr(b));let pick=pool.slice(0,CNT[i]);
+ if(!pick.some(q=>q.t=="circ"))pick[pick.length-1]=pool.find(q=>q.t=="circ");
+ if(!pick.some(q=>q.t=="mcq")){const m=pool.find(q=>q.t=="mcq"&&!pick.includes(q)),k=pick.findIndex(q=>q.t!="circ");if(m&&k>=0)pick[k]=m}
+ pick=shuf(pick);pick.forEach(q=>S.seen[q.id]=Date.now());return S.att[L[i].k]={ids:pick.map(q=>q.id),done:pick.map(()=>0)}}
+function openLevel(i,fresh){const l=L[i];let a=S.att[l.k];if(fresh||!a||a.done.every(Boolean)||a.ids.some(id=>!qOf(i,id)))a=newAtt(i);
+ ses={kind:"lvl",i,key:l.k,att:a,qs:a.ids.map(id=>qOf(i,id)),name:l.n,title:`Level ${i+1}: ${l.n}`};save();enter()}
+function openCustom(j){const c=S.custom[j];if(!c)return;const l=mkc(c);S.att[c.id]={ids:["x"],done:[0]};ses={kind:"cust",key:c.id,att:S.att[c.id],qs:[{...l,id:c.id+"x"}],name:l.n,title:"Custom: "+l.n};enter()}
+function openRW(j){const r=RW[j];let a=S.att[r.k];if(!a||a.done.every(Boolean)||a.ids.length!=2)a=S.att[r.k]={ids:["e","c"],done:[0,0]};ses={kind:"rw",key:r.k,att:a,qs:[rwBrief(r),rwCirc(r)],name:r.t,title:r.ic+" "+r.t};enter()}
+function enter(){hn=0;built="";$$(".pg").forEach(s=>s.classList.toggle("hide",s.id!="lab"));$$("nav button").forEach(b=>b.classList.toggle("on",b.dataset.pg=="lab"));
+ $("#lt").textContent=ses.title;$("#reroll").classList.toggle("hide",ses.kind!="lvl");const i=ses.att.done.findIndex(x=>!x);stage(i<0?0:i)}
+function setCirc(q){hp=3;hinted=false;hn=0;sel=null;uid=1;nodes=[];const n=q.i.length;
+ q.i.forEach((x,k)=>nodes.push({id:"i"+k,t:"IN",l:x,x:30,y:n>2?40+k*120:70+k*(n>1?150:0),v:false}));
+ nodes.push({id:"o0",t:"OUT",l:"Y",x:674,y:140,s:null});$("#next").classList.add("hide");
+ const eq=q.hide&&!ses.att.done[0]?"":q.eq;$("#goal").innerHTML=`${q.d} <b>Par ${q.par} gate${q.par>1?"s":""}</b>${q.leg||""}${eq?`<span class="eq">${eq}</span>`:""}`;
+ $("#pal").innerHTML="<span>Add gate:</span>"+q.g.map(g=>`<button class="gbtn" data-g="${g}" style="border-color:${COL[g]};color:${COL[g]}">+ ${g}</button>`).join("");
+ say("Tap a gate to add it. Tap an output dot, then an input dot to wire. Tap the input switches to flip them.");draw()}
+function stage(k){st=k;const q=ses.qs[k],c=q.t=="circ";$("#q1").classList.toggle("hide",!c);$("#qx").classList.toggle("hide",c);
+ if(c){const b=ses.key+":"+q.id+(ses.att.done[0]?1:0);if(built!=b){built=b;setCirc(q)}}else renderQ(q,k);steps();upNext();window.scrollTo({top:0})}
+function steps(){const a=ses.att,n=ses.qs.length,d=a.done.filter(Boolean).length;
+ $("#steps").innerHTML=ses.qs.map((q,k)=>`<button class="pill ${k==st?"on":""} ${a.done[k]?"ok":""}" data-st="${k}">${a.done[k]?"✔":k+1}. ${lbl(q)}</button>`).join("")+`<div class="prog"><b style="width:${d/n*100}%"></b></div><b>${d}/${n} completed</b>`}
+function view(q){if(q.t=="pred"){const two=q.g!="NOT";return{q:two?`Inputs A = ${q.a} and B = ${q.b} go into a ${q.g} gate. What is the output Y?`:`Input A = ${q.a} goes into a NOT gate. What is the output Y?`,o:["0","1"],ans:F[q.g](!!q.a,!!q.b)?"1":"0",fb:`Look up the ${q.g} gate in Learn Logic and check its truth table for this input row.`}}
+ return{q:q.q,o:shuf(q.o),ans:q.a,fb:q.fb||"Hint: "+q.w.split(".")[0]+"."}}
+function renderQ(q,k){const done=ses.att.done[k];CQ=view(q);let h=`<h3 style="margin-top:0">Question ${k+1} of ${ses.qs.length} · ${lbl(q)}</h3>${q.pre||""}`;
+ if(q.t=="tt")h+=`<p>Complete the truth table for <span class="eq">${q.e}</span>. Tap a cell to switch between 0 and 1.</p><table style="max-width:360px"><tr>${ABC.slice(0,q.n).map(x=>`<th>${x}</th>`).join("")}<th>Y</th></tr>${rowsN(q.n).map((r,i)=>`<tr>${r.map(x=>`<td>${x}</td>`).join("")}<td><button class="btn cell" data-c="${i}" style="min-width:52px">?</button></td></tr>`).join("")}</table><p><button class="btn go" id="chk">Check answers</button></p>`;
+ else h+=`<p style="font-size:17px">${CQ.q}</p>`+CQ.o.map(o=>`<button class="btn opt" style="display:block;width:100%;text-align:left;margin:6px 0">${o}</button>`).join("");
+ h+=`<div class="msg ${done?"ok":""}" id="qm">${done?'✅ Completed in this attempt. <button class="btn go" id="qn" style="margin-left:8px">Continue →</button>':"Answer correctly to complete this question. Wrong answers can be retried."}</div>`;$("#qx").innerHTML=h;st==k&&0}
+function qdone(w){const k=st,q=ses.qs[k];$("#qm").className="msg ok";$("#qm").innerHTML=`✅ Correct! ${w||""} <button class="btn go" id="qn" style="margin-left:8px">Continue →</button>`;sfx("win");finish(k,q)}
+$("#qx").addEventListener("click",e=>{const t=e.target,q=ses&&ses.qs[st];if(!q||q.t=="circ")return;
+ if(t.classList.contains("opt")){if(t.textContent==CQ.ans){t.classList.add("good");$$(".opt").forEach(b=>b.disabled=true);qdone(q.w)}else{t.classList.add("wrong");sfx("err");$("#qm").className="msg no";$("#qm").textContent="Not quite. "+CQ.fb}}
+ else if(t.dataset.c!==undefined){const v=t.textContent;t.textContent=v=="?"?"0":v=="0"?"1":"0";sfx("click")}
+ else if(t.id=="chk"){const cells=$$(".cell"),bad=[];rowsN(q.n).forEach((r,i)=>{if(cells[i].textContent!=(q.f(...r.map(Boolean))?"1":"0"))bad.push(r.join(""))});
+  if(bad.length){sfx("err");$("#qm").className="msg no";$("#qm").textContent="Check row"+(bad.length>1?"s ":" ")+bad.join(", ")+" ("+ABC.slice(0,q.n).join("")+" values). Work out each row one operation at a time."}else qdone("Every row matches.")}
+ else if(t.id=="qn")nextAct()});
+function nextAct(){sfx("click");const a=ses.att,i=a.done.findIndex(x=>!x);if(i>=0)stage(i);else if(ses.kind=="lvl"&&ses.i<7)openLevel(ses.i+1);else go(ses.kind=="rw"?"rw":ses.kind=="cust"?"cust":"dash")}
+function finish(k,q){const a=ses.att;a.done[k]=1;if(q.t!="circ"&&!S.ok[q.id])S.pts+=20;S.ok[q.id]=1;if(a.done.every(Boolean))complete();save();steps();upNext();$("#pts").textContent=S.pts}
+function complete(){const key=ses.key,was=S.done[key];S.done[key]=1;
+ if(ses.kind=="lvl"){const i=ses.i,b=bdef(i);
+  if(!S.badges[b.id]){b.date=new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"});S.badges[b.id]=b;W("badges",b.id,b);setTimeout(()=>{sfx("badge");toast(`🏅 Badge earned: ${b.title} (Level ${b.lv})`);boom()},700)}
+  else setTimeout(()=>{sfx("win");toast("Level replayed successfully. Your badge is already saved.")},700);
+  if(i<7&&!was)setTimeout(()=>{sfx("unlock");toast(`🔓 Level ${i+2} unlocked`)},2400)}
+ else if(ses.kind=="rw")setTimeout(()=>{sfx("badge");toast("🌍 Real-World challenge complete: "+ses.name);boom()},700);
+ else setTimeout(()=>toast("Custom challenge complete!"),700)}
+function upNext(){const a=ses.att,b=$("#next"),q=ses.qs[st];if(q.t!="circ")return;
+ if(!a.done[st]){b.classList.add("hide");return}b.classList.remove("hide");const i=a.done.findIndex(x=>!x);b.textContent=i>=0?`Question ${i+1} →`:(ses.kind=="lvl"&&ses.i<7?"Next level →":"Finish")}
+function say(t,c=""){const m=$("#msg");m.textContent=t;m.className="msg "+c}
+function addGate(t){const n=nodes.filter(x=>F[x.t]).length;if(n>=12){sfx("err");return say("Board is full (12 gates max).","no")}
+ const c=n%4,r=Math.floor(n/4)%4;nodes.push({id:"g"+uid++,t,x:170+c*125,y:30+r*88+(c%2)*22,s:t=="NOT"?[null]:[null,null]});sfx("add");draw()}
+const byId=id=>nodes.find(n=>n.id==id);
+function ev(n,d=0){if(d>20)return null;if(n.t=="IN")return env?env[n.l]:n.v;
+ const src=n.t=="OUT"?[n.s]:n.s,v=[];for(const s of src){if(!s)return null;const m=byId(s);if(!m)return null;const x=ev(m,d+1);if(x===null)return null;v.push(x)}
+ return n.t=="OUT"?v[0]:F[n.t](...v)}
+const isIO=n=>n.t=="IN"||n.t=="OUT",Wd=n=>isIO(n)?56:92,H=n=>isIO(n)?42:(n.t=="NOT"?46:60);
+const inP=(n,k)=>{const c=n.t=="OUT"?1:n.s.length;return{x:n.x,y:n.y+H(n)*(k+1)/(c+1)}},outP=n=>({x:n.x+Wd(n),y:n.y+H(n)/2});
+function port(n,k,p,i=0){const on=k=="o"&&sel==n.id,d=`data-p="${k}:${n.id}:${i}"`;return `<circle cx="${p.x}" cy="${p.y}" r="${on?10:7}" fill="${on?"var(--gold)":"var(--bg)"}" stroke="${on?"var(--gold)":"var(--mute)"}" stroke-width="3" ${d} style="cursor:pointer"/><circle cx="${p.x}" cy="${p.y}" r="16" fill="transparent" ${d} style="cursor:pointer"/>`}
+function draw(){let w="",b="";
+ nodes.forEach(n=>{(n.t=="OUT"?[n.s]:(n.s||[])).forEach((id,k)=>{if(!id)return;const f=byId(id);if(!f)return;const p=outP(f),q=inP(n,k),v=ev(f),dx=Math.max(30,(q.x-p.x)/2),d=`M${p.x} ${p.y}C${p.x+dx} ${p.y},${q.x-dx} ${q.y},${q.x} ${q.y}`;
+  w+=`<path class="wire" d="${d}" stroke="${v?"var(--on)":"var(--off)"}" ${v?'style="filter:drop-shadow(0 0 5px var(--on))"':""}/><path d="${d}" fill="none" stroke="transparent" stroke-width="18" data-w="${n.id}:${k}" style="cursor:pointer"/>`})});
+ nodes.forEach(n=>{if(n.t=="IN"){const v=n.v;b+=`<g data-tog="${n.id}" style="cursor:pointer"><rect x="${n.x}" y="${n.y}" width="56" height="42" rx="12" fill="${v?"var(--on)":"var(--panel2)"}" stroke="var(--line)"/><text x="${n.x+28}" y="${n.y+27}" text-anchor="middle" font-weight="800" font-size="15" fill="${v?"#06281c":"var(--text)"}">${n.l} ${+v}</text></g>${port(n,"o",outP(n))}`}
+  else if(n.t=="OUT"){const v=ev(n),c=v===null?"var(--off)":v?"var(--on)":"var(--bad)";b+=`<rect x="${n.x}" y="${n.y}" width="56" height="42" rx="21" fill="var(--panel2)" stroke="${c}" stroke-width="3" ${v?'style="filter:drop-shadow(0 0 8px var(--on))"':""}/><text x="${n.x+28}" y="${n.y+26}" text-anchor="middle" font-weight="800" font-size="13" fill="var(--text)">Y${v===null?"":" "+ +v}</text>${port(n,"i",inP(n,0),0)}`}
+  else{const c=COL[n.t],v=ev(n);b+=`<g data-drag="${n.id}" style="cursor:grab"><rect x="${n.x}" y="${n.y}" width="92" height="${H(n)}" rx="12" fill="var(--panel)" stroke="${c}" stroke-width="3" ${v?'style="filter:drop-shadow(0 0 7px '+c+')"':""}/><text x="${n.x+46}" y="${n.y+H(n)/2+5}" text-anchor="middle" font-weight="800" font-size="15" fill="${c}">${n.t}</text></g><g data-del="${n.id}" style="cursor:pointer"><circle cx="${n.x+92}" cy="${n.y}" r="9" fill="var(--bad)"/><text x="${n.x+92}" y="${n.y+4}" text-anchor="middle" font-size="12" fill="#fff">×</text></g>${n.s.map((_,k)=>port(n,"i",inP(n,k),k)).join("")}${port(n,"o",outP(n))}`}});
+ $("#svg").innerHTML=w+b;$("#hp").textContent="♥".repeat(hp)+"♡".repeat(3-hp);table()}
+function combos(l){const n=l.i.length,r=[];for(let m=0;m<1<<n;m++){const v=l.i.map((_,k)=>!!(m>>(n-1-k)&1)),e={};l.i.forEach((x,k)=>e[x]=v[k]);r.push([v,e])}return r}
+function table(){const l=ses.qs[st],o=byId("o0");let h=`<tr>${l.i.map(x=>`<th>${x}</th>`).join("")}<th>Expected Y</th><th>Your Y</th></tr>`;
+ combos(l).forEach(([v,e])=>{env=e;const t=l.f(v)[0],a=ev(o);h+=`<tr>${v.map(x=>`<td>${+x}</td>`).join("")}<td>${+t}</td><td class="${a===null?"":a===t?"ok":"bad"}">${a===null?"·":+a}</td></tr>`});env=null;$("#tt").innerHTML=h}
+function log(name,ok,p){const h={c:name,ok,p,w:S.name,t:Date.now()};S.hist.unshift(h);S.hist=S.hist.slice(0,60);W("history","h"+h.t,h)}
+function test(){const q=ses.qs[st],o=byId("o0"),gs=nodes.filter(x=>F[x.t]);sfx("click");
+ if(!o.s||gs.some(g=>g.s.some(x=>!x))){sfx("err");return say("Some inputs are not wired yet. Every input dot needs a wire.","no")}
+ let bad=null;for(const[v,e]of combos(q)){env=e;if(!bad&&ev(o)!==q.f(v)[0])bad=q.i.map((x,j)=>x+"="+ +v[j]).join(", ")+": Y should be "+ +q.f(v)[0]}env=null;
+ const nm=ses.name+" · Q"+(st+1);
+ if(bad){hp--;log(nm,false,0);save();draw();if(hp<=0){sfx("over");say("Out of hearts! Circuit reset. Try a hint.","no");setTimeout(()=>setCirc(q),1500);return}
+  sfx("lose");return say(`Not quite. When ${bad}. ${hp} heart${hp>1?"s":""} left.`+(ses.kind=="rw"?" Compare with the truth table below.":""),"no")}
+ const n=gs.length,s=Math.min(hinted?2:3,n<=q.par?3:n<=q.par+2?2:1),first=!S.ok[q.id];let gain=0;
+ if(ses.kind=="rw"){const r=RW.find(x=>x.k==ses.key),p=Math.round(r.pts*s/3),old=S.rw[ses.key];gain=Math.max(0,p-(old?old.p:0));if(!old||p>old.p)S.rw[ses.key]={s,p,d:new Date().toLocaleDateString()};S.pts+=gain}
+ else{if(first)gain=ses.kind=="lvl"?40+ses.i*10:30;S.pts+=gain;if(s>(S.stars[ses.key]||0))S.stars[ses.key]=s}
+ log(nm,true,gain);sfx("win");boom();
+ say(`Circuit correct with ${n} gate${n>1?"s":""}: ${"★".repeat(s)}${s<3?" (par is "+q.par+", try for ★★★)":" Perfect!"} +${gain} points`+(q.ex?`\nWhy it works: ${q.ex}`:""),"ok");finish(st,q)}
+const cv=$("#fx"),cx=cv.getContext("2d");let P=[];
+function boom(){cv.width=innerWidth;cv.height=innerHeight;if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;for(let i=0;i<110;i++)P.push({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*14,vy:-Math.random()*13-2,c:`hsl(${Math.random()*360},90%,60%)`,s:4+Math.random()*5,l:90});loop()}
+function loop(){cx.clearRect(0,0,cv.width,cv.height);P=P.filter(p=>p.l>0);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.35;p.l--;cx.fillStyle=p.c;cx.fillRect(p.x,p.y,p.s,p.s)});if(P.length)requestAnimationFrame(loop)}
+// ---------- badge certificate ----------
+function cert(b){const c=document.createElement("canvas"),w=1200,h=850;c.width=w;c.height=h;const x=c.getContext("2d");
+ let g=x.createLinearGradient(0,0,w,h);g.addColorStop(0,"#0e1432");g.addColorStop(1,"#2a1f6b");x.fillStyle=g;x.fillRect(0,0,w,h);
+ x.strokeStyle=b.c;x.lineWidth=8;x.strokeRect(30,30,w-60,h-60);x.lineWidth=2;x.strokeRect(50,50,w-100,h-100);
+ x.textAlign="center";x.fillStyle="#9fb0ff";x.font="bold 24px system-ui,Arial";x.fillText("L O G I C   Q U E S T  ·  D I G I T A L   L O G I C   D E S I G N",w/2,110);
+ x.fillStyle="#fff";x.font="bold 54px Georgia,serif";x.fillText("Certificate of Achievement",w/2,185);
+ g=x.createRadialGradient(w/2,330,10,w/2,330,120);g.addColorStop(0,"#fff");g.addColorStop(.35,b.c);g.addColorStop(1,"#00000066");x.fillStyle=g;x.beginPath();x.arc(w/2,330,115,0,7);x.fill();
+ x.strokeStyle="#ffffffaa";x.lineWidth=5;x.beginPath();x.arc(w/2,330,128,0,7);x.stroke();
+ x.font="100px system-ui,'Segoe UI Emoji','Apple Color Emoji',sans-serif";x.fillStyle="#fff";x.fillText(b.icon,w/2,366);
+ x.fillStyle=b.c;x.font="bold 26px system-ui,Arial";x.fillText("LEVEL "+b.lv+" BADGE",w/2,505);
+ x.fillStyle="#fff";x.font="bold 58px Georgia,serif";x.fillText(b.title,w/2,570);
+ x.fillStyle="#b8c3f5";x.font="24px system-ui,Arial";x.fillText("This certifies that",w/2,625);
+ x.fillStyle="#ffd36b";x.font="italic bold 50px Georgia,serif";x.fillText(S.name,w/2,688);
+ x.fillStyle="#d7ddff";x.font="23px system-ui,Arial";x.fillText(b.desc,w/2,735);
+ x.fillStyle="#9fb0ff";x.font="21px system-ui,Arial";x.fillText("Completed on "+b.date+"  ·  Logic Quest: Circuit Arcade",w/2,790);return c}
+async function dl(b){const name=`Logic_Quest_Level_${b.lv}_Badge.png`,blob=await new Promise(r=>cert(b).toBlob(r,"image/png"));
+ if(!DLS){toast("Direct download is unavailable here. Use View Badge, then right-click or long-press the image to save it.");return}
+ try{await DLS.save({filename:name,data:blob});sfx("ok");toast("Badge saved as "+name)}catch(e){toast(e&&e.code=="declined"?"Download cancelled.":"Could not save. Use View Badge and long-press the image to save it.")}}
+function openBadge(id){const b=S.badges[id];if(!b)return;sfx("click");const o=$("#ov"),m=$("#md");o.classList.remove("hide");
+ m.innerHTML=`<div class="top"><h2 style="font-size:20px">${b.icon} ${b.title}</h2><button class="btn" id="mx">✕ Close</button></div><p style="margin:0 0 6px"><b>Level ${b.lv}</b> · ${b.desc}<br><span style="color:var(--mute)">Earned by ${S.name} on ${b.date}</span></p><div class="top"><button class="btn go" id="bv">👁 View Badge</button><button class="btn go" id="bdl">⬇ Download Badge</button></div><div id="bimg"></div>`;
+ $("#mx").onclick=()=>o.classList.add("hide");$("#bv").onclick=()=>{sfx("badge");$("#bimg").innerHTML=`<img alt="${b.title} certificate" src="${cert(b).toDataURL("image/png")}">`};$("#bdl").onclick=()=>dl(b)}
+// ---------- events ----------
+const svg=$("#svg"),pt=e=>new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());
+svg.addEventListener("pointerdown",e=>{const g=e.target.closest("[data-drag]");if(g&&!e.target.closest("[data-del]")){const n=byId(g.dataset.drag),p=pt(e);drag={n,dx:p.x-n.x,dy:p.y-n.y};svg.setPointerCapture(e.pointerId)}});
+svg.addEventListener("pointermove",e=>{if(!drag)return;const p=pt(e);drag.n.x=Math.max(100,Math.min(580,p.x-drag.dx));drag.n.y=Math.max(8,Math.min(340,p.y-drag.dy));draw()});
+svg.addEventListener("pointerup",()=>{drag=null});
+svg.addEventListener("click",e=>{const t=e.target;let a;
+ if(a=t.closest("[data-del]")){const id=a.dataset.del;nodes=nodes.filter(n=>n.id!=id);nodes.forEach(n=>{if(n.t=="OUT"){if(n.s==id)n.s=null}else if(n.s)n.s=n.s.map(x=>x==id?null:x)});if(sel==id)sel=null;sfx("del")}
+ else if(a=t.closest("[data-p]")){const[k,id,i]=a.dataset.p.split(":");
+  if(k=="o"){sel=sel==id?null:id;sfx("pick")}
+  else if(sel){const n=byId(id);if(sel==id){sfx("err");return say("A gate cannot feed itself.","no")}if(n.t=="OUT")n.s=sel;else n.s[+i]=sel;sel=null;sfx("wire")}}
+ else if(a=t.closest("[data-w]")){const[id,i]=a.dataset.w.split(":"),n=byId(id);if(n.t=="OUT")n.s=null;else n.s[+i]=null;sfx("cut")}
+ else if(a=t.closest("[data-tog]")){const n=byId(a.dataset.tog);n.v=!n.v;sfx(n.v?"on":"off")}
+ else sel=null;draw()});
+$("#pal").onclick=e=>{const b=e.target.closest("[data-g]");if(b)addGate(b.dataset.g)};
+$("#path").onclick=e=>{const c=e.target.closest("[data-l]");if(c){sfx("click");const i=+c.dataset.l;i<8?openLevel(i):openCustom(i-8)}};
+$("#rwgrid").onclick=e=>{const c=e.target.closest("[data-r]");if(c){sfx("click");openRW(+c.dataset.r)}};
+$("#menu").onclick=e=>{const b=e.target.closest("[data-m]");if(!b)return;sfx("nav");const m=b.dataset.m;if(m=="levels")$("#path").scrollIntoView({behavior:"smooth"});else if(m=="bd"){pv="bd";go("prog")}else if(m=="prog"){pv="ov";go("prog")}else go(m)};
+$("#reroll").onclick=()=>{sfx("cut");openLevel(ses.i,true);toast("New random questions loaded")};
+$("#steps").onclick=e=>{const b=e.target.closest("[data-st]");if(b){sfx("nav");stage(+b.dataset.st)}};
+$("#pbadges").onclick=e=>{const c=e.target.closest("[data-b]");if(c)openBadge(c.dataset.b)};
+$$(".tabs button").forEach(b=>b.onclick=()=>{sfx("nav");pv=b.dataset.pv;rProg()});
+$("#clist").onclick=e=>{const a=e.target.closest("[data-cp]"),d=e.target.closest("[data-cd]");if(a){sfx("click");openCustom(+a.dataset.cp)}
+ if(d){const id=d.dataset.cd;S.custom=S.custom.filter(c=>c.id!=id);if(ROOT)ROOT.collection("custom").doc(id).delete().catch(()=>{});save();sfx("del");rCust()}};
+$("#test").onclick=test;$("#reset").onclick=()=>{sfx("cut");setCirc(ses.qs[st])};
+$("#hint").onclick=()=>{const q=ses.qs[st];hinted=true;sfx("hint");say("💡 "+(q.hs?q.hs[Math.min(hn++,q.hs.length-1)]:q.h)+" (Hints cap this question at ★★.)")};
+$("#next").onclick=nextAct;
+$("#back").onclick=()=>{sfx("nav");go(ses&&ses.kind=="rw"?"rw":ses&&ses.kind=="cust"?"cust":"dash")};$("#cont").onclick=()=>{sfx("click");openLevel(cur())};
+$$("nav button").forEach(b=>b.onclick=()=>{sfx("nav");go(b.dataset.pg)});
+$("#nm").onchange=e=>{S.name=e.target.value.trim()||"Player";save()};
+$("#snd").onclick=()=>{S.snd=!S.snd;$("#snd").textContent=S.snd?"🔊":"🔇";save();sfx("click")};
+$("#ov").onclick=e=>{if(e.target.id=="ov")$("#ov").classList.add("hide")};
+$("#cf").onsubmit=e=>{e.preventDefault();const n=+$("#cn").value,b=$("#cb").value.trim();
+ if(!new RegExp("^[01]{"+(1<<n)+"}$").test(b)){sfx("err");$("#cfb").textContent="Enter exactly "+(1<<n)+" bits (0 or 1) for "+n+" inputs.";return}
+ const c={id:"c"+Date.now(),n:$("#ct").value.trim(),d:$("#cd").value.trim(),b,ni:n,par:+$("#cp").value||3,t:Date.now()};
+ S.custom.push(c);W("custom",c.id,c);save();sfx("badge");$("#cfb").textContent="Saved! Attempt it from the list or the Dashboard path.";e.target.reset();$("#cp").value=3;rCust()};
+$("#cn").onchange=$("#cb").oninput=cpv;
+$("#snd").textContent=S.snd?"🔊":"🔇";go("dash");dbInit();
+})();
+</script>
+</body>
+</html>

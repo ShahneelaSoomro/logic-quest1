@@ -1,0 +1,17 @@
+# One-click deploy on Render (https://render.com) - New > Blueprint > pick this repo.
+# NOTE: a persistent disk requires a paid instance type. On the free tier data is wiped on each redeploy.
+services:
+  - type: web
+    name: logic-quest
+    runtime: docker
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: DATA_DIR
+        value: /data
+    disk:
+      name: lq-data
+      mountPath: /data
+      sizeGB: 1

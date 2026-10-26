@@ -1,0 +1,14 @@
+{
+  "name": "logic-quest",
+  "version": "1.0.0",
+  "description": "Logic Quest: Circuit Arcade - game frontend with a zero-dependency Node + SQLite backend",
+  "main": "server.js",
+  "private": true,
+  "type": "commonjs",
+  "engines": { "node": ">=22.5.0" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch server.js",
+    "test": "node --disable-warning=ExperimentalWarning test/api.test.js"
+  }
+}
